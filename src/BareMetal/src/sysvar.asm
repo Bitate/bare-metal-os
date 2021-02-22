@@ -49,7 +49,7 @@ os_ClockCounter:	equ os_SystemVariables + 16
 os_PacketAddress:	equ os_SystemVariables + 24
 os_StackBase:		equ os_SystemVariables + 40
 os_net_transmit:	equ os_SystemVariables + 48
-os_net_poll:		equ os_SystemVariables + 56
+os_net_poll:		equ os_SystemVariables + 56		; this is a function? where is the definition?
 os_net_ackint:		equ os_SystemVariables + 64
 os_NetIOBaseMem:	equ os_SystemVariables + 72
 os_NetMAC:		equ os_SystemVariables + 80

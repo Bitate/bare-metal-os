@@ -13,13 +13,17 @@ init_64:
 	; Clear system variables area
 	mov edi, os_SystemVariables
 	mov ecx, 122880			; Clear 960 KiB
-	xor eax, eax			; set eax to 0s
+							; 122880 = (1024 x 960) / 8
+							; Why is 960K divided by 8?
+							; 	Each system variable address is 8 byte.
+	xor eax, eax			
 	rep stosq				; same as memset function
 
 	; Create exception gate stubs (Pure64 has already set the correct gate markers)
 	xor edi, edi			; 64-bit IDT at linear address 0x0000000000000000
 	mov ecx, 32
 	mov rax, exception_gate		; A generic exception handler
+	
 make_exception_gate_stubs:
 	call create_gate
 	inc edi
