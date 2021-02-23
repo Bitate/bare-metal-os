@@ -19,24 +19,28 @@
 
 
 BITS 16
-org 0x7C00
+org 0x7C00			; Let BIOS do its job
 
 entry:
 	cli				; Disable interrupts
 	cld				; Clear direction flag
+					; ???
 	xor eax, eax
 	mov ss, ax
 	mov es, ax
 	mov ds, ax
-	mov sp, 0x7C00
+	mov sp, 0x7C00	; ???
 	sti				; Enable interrupts
 
+	; the initial value of dl is 0??? 
 	mov [DriveNumber], dl		; BIOS passes drive number in DL
 
+; http://www.ctyme.com/intr/rb-0811.htm
 	mov ah, 0
-	mov al, 11100011b		; 9600bps, no parity, 1 stop bit, 8 data bits
+	mov al, 11100011b	; 9600bps, no parity, 1 stop bit, 8 data bits
 	mov dx, 0			; Serial port 0
 	int 0x14			; Configure serial port
+						; BIOS interrupt
 
 ; Get the BIOS E820 Memory Map
 ; use the INT 0x15, eax= 0xE820 BIOS function to get a memory map
@@ -165,13 +169,13 @@ halt:
 
 
 ;------------------------------------------------------------------------------
-; 16-bit function to output a string to the serial port
+; 16-bit function to output a string to the serial port by calling BIOS interrupt.
 ; IN:	SI - Address of start of string
 print_string_16:			; Output string in SI to screen
-	pusha
+	pusha				
 	mov dx, 0			; Port 0
 .repeat:
-	mov ah, 0x01			; Serial - Write character to port
+	mov ah, 0x01		; Serial - Write character to port
 	lodsb				; Get char from string
 	cmp al, 0
 	je .done			; If char is zero, end of string
@@ -217,9 +221,9 @@ DAP:
 	dw DAP_SEGMENT
 	dq DAP_STARTSECTOR
 
-times 510-$+$$ db 0
+times 510-$+$$ db 0 ; padding up to 512 bytes with 0s
 
-sign dw 0xAA55
+sign dw 0xAA55		; unique signature for bootloader
 
 VBEModeInfoBlock: equ 0x5C00
 ; VESA

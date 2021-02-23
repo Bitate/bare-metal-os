@@ -21,7 +21,7 @@ init_64:
 
 	; Create exception gate stubs (Pure64 has already set the correct gate markers)
 	xor edi, edi			; 64-bit IDT at linear address 0x0000000000000000
-	mov ecx, 32
+	mov ecx, 32				; ???
 	mov rax, exception_gate		; A generic exception handler
 	
 make_exception_gate_stubs:

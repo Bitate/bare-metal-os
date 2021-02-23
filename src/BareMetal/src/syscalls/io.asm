@@ -29,7 +29,7 @@ b_input_no_key:
 ; -----------------------------------------------------------------------------
 ; b_output -- Outputs characters
 ;  IN:	RSI = message location (non zero-terminated)
-;	RCX = number of chars to output
+;		RCX = number of chars to output
 ; OUT:	All registers preserved
 b_output:
 	push rsi			; Message location
