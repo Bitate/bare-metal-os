@@ -39,11 +39,11 @@ ahci_CMD:		equ 0x0000000000168000	; 0x168000 -> 0x16FFFF	32K AHCI Commands
 os_rx_desc:		equ 0x00000000001A0000	; 0x1A0000 -> 0x1A7FFF	32K Ethernet receive descriptors
 os_tx_desc:		equ 0x00000000001A8000	; 0x1A8000 -> 0x1AFFFF	32K Ethernet transmit descriptors
 os_PacketBuffers:	equ 0x00000000001B0000	;
-os_SMP:			equ 0x00000000001FF800	; SMP table. Each item is 8 bytes. (2KiB before the 2MiB mark, Room for 256 entries)
+os_SMP:			equ 0x00000000001FF800	; SMP table. Each item is 8 bytes. (2KiB before the 2MiB mark, 256 entries)
 app_start:		equ 0xFFFF800000000000	; Location of application memory
 
 ; DQ - Starting at offset 0, increments by 8
-os_LocalAPICAddress:	equ os_SystemVariables + 0
+os_LocalAPICAddress:	equ os_SystemVariables + 0	; APIC(Advanced Programmable Interrupt Controller)
 os_IOAPICAddress:	equ os_SystemVariables + 8
 os_ClockCounter:	equ os_SystemVariables + 16
 os_PacketAddress:	equ os_SystemVariables + 24

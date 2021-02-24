@@ -18,8 +18,9 @@ cd ../..
 
 cd sys
 ./bmfs disk.img format
-
+cat multiboot.sys pure64.sys kernel.sys > boot.bin
 cd ..
+
 ./install.sh monitor.bin
 
 echo Done!

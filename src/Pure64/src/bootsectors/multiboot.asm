@@ -16,7 +16,7 @@
 
 FLAG_ALIGN		equ 1<<0   ; align loaded modules on page boundaries
 FLAG_MEMINFO		equ 1<<1   ; provide memory map
-FLAG_VIDEO		equ 1<<2   ; set video mode
+FLAG_VIDEO		equ 0<<2   ; set video mode
 FLAG_AOUT_KLUDGE	equ 1<<16
 			;FLAGS[16] indicates to GRUB we are not
 			;an ELF executable and the fields

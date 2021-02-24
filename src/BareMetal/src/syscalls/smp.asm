@@ -2,7 +2,7 @@
 ; BareMetal -- a 64-bit OS written in Assembly for x86-64 systems
 ; Copyright (C) 2008-2020 Return Infinity -- see LICENSE.TXT
 ;
-; SMP Functions
+; SMP Functions. SMP(Symmetric multiprocessing).
 ; =============================================================================
 
 
@@ -18,8 +18,11 @@ b_smp_reset:
 	mov rdi, [os_LocalAPICAddress]
 	shl eax, 24		; AL holds the CPU #, shift left 24 bits to get it into 31:24, 23:0 are reserved
 	mov [rdi+0x0310], eax	; Write to the high bits first
+							; why 0x0310???
+							;
 	xor eax, eax		; Clear EAX, namely bits 31:24
 	mov al, 0x81		; Execute interrupt 0x81
+						; How is it possible to execute interrupt this way???
 	mov [rdi+0x0300], eax	; Then write to the low bits
 
 	pop rax
@@ -139,7 +142,7 @@ b_smp_set_error:
 
 
 ; -----------------------------------------------------------------------------
-; b_smp_get -- Returns a CPU code address and flags
+; b_smp_get -- Returns a CPU code address and flags, CPU code???
 ;  IN:	Nothing
 ; OUT:	RAX = Code address (bits 63:4) and flags (bits 3:0)
 b_smp_get:
@@ -147,8 +150,8 @@ b_smp_get:
 
 	call b_smp_get_id	; Return APIC ID in RAX
 
-	mov rsi, os_SMP
-	shl rax, 3		; Quick multiply by 8
+	mov rsi, os_SMP		; is this the SMP table starting address???
+	shl rax, 3			; Quick multiply by 8
 	add rsi, rax		; Add the offset
 	mov rax, [rsi]		; Load code address and flags
 	pop rsi
