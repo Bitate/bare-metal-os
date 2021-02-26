@@ -74,11 +74,11 @@ start32:
 
 ; Set up RTC
 ; Port 0x70 is RTC Address, and 0x71 is RTC Data
-; http://www.nondot.org/sabre/os/files/MiscHW/RealtimeClockFAQ.txt
+; https://web.archive.org/web/20150514082645/http://www.nondot.org/sabre/os/files/MiscHW/RealtimeClockFAQ.txt
 rtc_poll:
 	mov al, 0x0A			; Status Register A
-	out 0x70, al			; Select the address
-	in al, 0x71			; Read the data
+	out 0x70, al			; Select the address of status register A on RTC chip
+	in al, 0x71				; Read the data to al
 	test al, 0x80			; Is there an update in process?
 	jne rtc_poll			; If so then keep polling
 	mov al, 0x0A			; Status Register A
@@ -555,7 +555,7 @@ EOF:
 	db 0xDE, 0xAD, 0xC0, 0xDE
 
 ; Pad to an even KB file
-times PURE64SIZE-($-$$) db 0x90
+times PURE64SIZE-($-$$) db 0x90		; ???
 
 
 ; =============================================================================

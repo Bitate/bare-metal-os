@@ -9,9 +9,9 @@
 init_smp:
 ; Check if we want the AP's to be enabled.. if not then skip to end
 	cmp byte [cfg_smpinit], 1	; Check if SMP should be enabled
-	jne noMP			; If not then skip SMP init
+	jne noMP					; If not then skip SMP init
 
-; Start the AP's one by one
+; Start the AP's one by one, AP(application processor)
 	xor eax, eax
 	xor edx, edx
 	mov rsi, [os_LocalAPICAddress]
