@@ -74,7 +74,7 @@ start32:
 
 ; Set up RTC
 ; Port 0x70 is RTC Address, and 0x71 is RTC Data
-; https://web.archive.org/web/20150514082645/http://www.nondot.org/sabre/os/files/MiscHW/RealtimeClockFAQ.txt
+; according to https: web.archive.org/web/20150514082645/http: www.nondot.org/sabre/os/files/MiscHW/RealtimeClockFAQ.txt
 rtc_poll:
 	mov al, 0x0A			; Status Register A
 	out 0x70, al			; Select the address of status register A on RTC chip
@@ -87,18 +87,77 @@ rtc_poll:
 	out 0x71, al			; Write the data
 
 ; Remap PIC IRQ's
-	mov al, 00010001b		; begin PIC 1 initialization
-	out 0x20, al
-	mov al, 00010001b		; begin PIC 2 initialization
-	out 0xA0, al
-	mov al, 0x20			; IRQ 0-7: interrupts 20h-27h
-	out 0x21, al
-	mov al, 0x28			; IRQ 8-15: interrupts 28h-2Fh
+; Why we do this?
+; In protected mode, the IRQs 0 to 7 conflict with the CPU exception which are reserved by Intel up until 0x1F. 
+; (It was an IBM design mistake.) Consequently it is difficult to tell the difference between an IRQ or an software error. 
+; It is thus recommended to change the PIC's offsets (also known as remapping the PIC) so that IRQs use non-reserved vectors.
+; A common choice is to move them to the beginning of the available range (IRQs 0..0xF -> INT 0x20..0x2F). For that, 
+; we need to set the master PIC's offset to 0x20 and the slave's to 0x28.
+	; ICW1 bitset:
+	;  Bits:
+	;    bit 0 -- ICW4 needed          (1) or ICW4 not needed          (0)
+	;    bit 1 -- cascade mode         (0) or single mode              (1)
+	;    bit 2 -- IDT entry is 8 bytes (0) or 4 bytes                  (1)
+	;    bit 3 -- edge triggered mode  (0) or level triggered mode     (1)
+	;    bit 4 -- ICW1 is being issued (1) or ICW1 is not being issued (0)
+	;   bits 5-7 are only used if bit 2 is 0 (000)
+	mov al, 00010001b		
+	out 0x20, al			; port 0x20 is the master PIC's command port
+	mov al, 00010001b		
+	out 0xA0, al			; port 0xA0 is the slave PIC's command port
+
+	; ICW2 bitset:
+	;  Bits:
+	;   bit  0-2 -- reserved (00)
+	;   bits 3-7 -- first INT number to be handled by each PIC
+	; 0x20 and 0x28 correspondingly are the starting offsets of each PIC (the new offsets we want to remap PICs on).
+	mov al, 0x20			; master PIC IRQ 0-7: interrupts 20h-27h
+	out 0x21, al			; port 0x21 is the master PIC's data port
+	mov al, 0x28			; slave PIC IRQ 8-15: interrupts 28h-2Fh
+	out 0xA1, al			; port 0xA1 is the slave PIC's data port
+	
+	; ICW3 bitset:
+	;  Bits:
+	;   bit 0 -- PIC attached, "IRQ 0 to PIC2" for PIC1 and "IRQ  8" for PIC2  (1)
+	;         or cascaded disabled for "IRQ 0" for PIC1 and "IRQ  8" for PIC2  (0)
+	; 
+	;   bit 1 -- PIC attached, "IRQ 1 to PIC2" for PIC1 and "IRQ  9" for PIC2  (1)
+	;         or cascaded disabled for "IRQ 1" for PIC1 and "IRQ  9" for PIC2  (0)
+	; 
+	;   bit 2 -- PIC attached, "IRQ 2 to PIC2" for PIC1 and "IRQ 10" for PIC2  (1)
+	;         or cascaded disabled for "IRQ 2" for PIC1 and "IRQ 10" for PIC2  (0)
+	; 
+	;   bit 3 -- PIC attached, "IRQ 3 to PIC2" for PIC1 and "IRQ 11" for PIC2  (1)
+	;         or cascaded disabled for "IRQ 3" for PIC1 and "IRQ 11" for PIC2  (0)
+	; 
+	;   bit 4 -- PIC attached, "IRQ 4 to PIC2" for PIC1 and "IRQ 12" for PIC2  (1)
+	;         or cascaded disabled for "IRQ 4" for PIC1 and "IRQ 12" for PIC2  (0)
+	; 
+	;   bit 5 -- PIC attached, "IRQ 5 to PIC2" for PIC1 and "IRQ 13" for PIC2  (1)
+	;         or cascaded disabled for "IRQ 5" for PIC1 and "IRQ 13" for PIC2  (0)
+	; 
+	;   bit 6 -- PIC attached, "IRQ 6 to PIC2" for PIC1 and "IRQ 14" for PIC2  (1)
+	;         or cascaded disabled for "IRQ 6" for PIC1 and "IRQ 14" for PIC2  (0)
+	; 
+	;   bit 7 -- PIC attached, "IRQ 7 to PIC2" for PIC1 and "IRQ 15" for PIC2  (1)
+	;         or cascaded disabled for "IRQ 7" for PIC1 and "IRQ 15" for PIC2  (0)
+	mov al, 4		; write 4 to the master PIC (indicating a slave is connected to IRQ2)
+					; ??? still not clear
+	out 0x21, al	
+	mov al, 2		; write 2 to the slave (setting its slave ID)
+					; ??? still not clear
 	out 0xA1, al
-	mov al, 4
-	out 0x21, al
-	mov al, 2
-	out 0xA1, al
+	
+	; ICW4 bitset:
+	;  Bits:
+	;    bit 0   -- 8086/8088 mode (1) or 8085 mode                 (0)
+	;    bit 1   -- manual EOI     (0) or auto EOI                  (1) Interrupt Acknowledge
+	;   bits 2-3 --               [00] == nonbuffered mode      == [00]
+	;                             (01) == nonbuffered mode      == (01)
+	;                             (10) == buffered mode/slave   == (10)
+	;                             (11) == buffered mode/master  == (11)
+	;    bit 4   -- normal mode    (0) or special fully-nested mode (1)
+	;   bits 5-7 -- reserved     (000)
 	mov al, 1
 	out 0x21, al
 	out 0xA1, al

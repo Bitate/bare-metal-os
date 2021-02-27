@@ -4,6 +4,12 @@ Application processor. A processor that is not the BSP. All APs are in a halted 
 BSP  
 bootstrap processor. The processor which is given control after the BIOS finishes its POST.
 
+IRQ  
+[Interrupt Requestes](https://en.wikipedia.org/wiki/Interrupt_request_(PC_architecture))
+
+PIC  
+[Programmable Interrupt Controller](https://en.wikipedia.org/wiki/Programmable_interrupt_controller) is a manager in an interrupt-driven system. It accepts interrupt requests from the peripheral devices, determines which of the incoming requests is of the highest importance (priority), ascertains whether the incoming request has a higher priority value than the level currently being serviced, and issues an interrupt to the CPU based on this determination.
+
 APIC  
 Advanced Programmable Interrupt Controller. Either a local APIC or an I/O APIC. It is attached to the APIC bus.
 
@@ -30,3 +36,9 @@ The act of executing a certain instruction which causes the processor to pause t
 
 SMP  
 symmetric multiprocessing. Using multiple processors which share the same physical memory in the same computer at the time.
+
+8259 PIC  
+https://wiki.osdev.org/8259_PIC
+
+ICW  
+Initialization Command Word used on the 8259A chip.
