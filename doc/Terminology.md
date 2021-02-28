@@ -42,3 +42,15 @@ https://wiki.osdev.org/8259_PIC
 
 ICW  
 Initialization Command Word used on the 8259A chip.
+
+IVT  
+Interrupt Vector Table.
+
+IR  
+Interrupt Routines. For example, the instruction 'INT 2' will execute the IR at index 2 in the IVT. Cool?
+
+IDT  
+Interrupt Descriptor Table.
+
+GDT  
+Global Descriptor Table.
