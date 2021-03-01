@@ -54,3 +54,6 @@ Interrupt Descriptor Table.
 
 GDT  
 Global Descriptor Table.
+
+BIOS POST  
+I'm sure that BIOS POST != HTTP POST. POST(Power-On Self-Test).
