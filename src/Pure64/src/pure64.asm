@@ -141,6 +141,8 @@ rtc_poll:
 	; 
 	;   bit 7 -- PIC attached, "IRQ 7 to PIC2" for PIC1 and "IRQ 15" for PIC2  (1)
 	;         or cascaded disabled for "IRQ 7" for PIC1 and "IRQ 15" for PIC2  (0)
+
+	; The 80x86 architecture uses IRQ line 2 to connect the master PIC to the slave PIC.
 	mov al, 4		; write 4 to the master PIC (indicating a slave is connected to IRQ2)
 					; ??? still not clear
 	out 0x21, al	
@@ -162,9 +164,11 @@ rtc_poll:
 	out 0x21, al
 	out 0xA1, al
 
-; Mask all PIC interrupts
-; What does 'mask' here mean?
-; 		
+; Mask/Disable/Ignore all PIC hardware interrupts
+; Why the magic number '0xFF'?
+;		0xFF = 11111111b, send this to the IMR(Interrupt Mask Register)
+;		1 is to disable certain hardware interrupt while 0 is enable.
+;		See the IMR register doc of 8259A chip.
 	mov al, 0xFF
 	out 0x21, al
 	out 0xA1, al
