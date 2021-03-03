@@ -143,11 +143,33 @@ rtc_poll:
 	;         or cascaded disabled for "IRQ 7" for PIC1 and "IRQ 15" for PIC2  (0)
 
 	; The 80x86 architecture uses IRQ line 2 to connect the master PIC to the slave PIC.
+
+	; IRQ Lines for ICW 3 (Primary PIC)	
+	; Bit Number	IRQ Line
+	;  0			   IR0
+	;  1			   IR1
+	;  2			   IR2
+	;  3			   IR3
+	;  4			   IR4
+	;  5			   IR5
+	;  6			   IR6
+	;  7			   IR7
+	
+	; IRQ Lines for ICW 3 (Secondary PIC)
+	; Binary	IRQ Line
+	;  000		   IR0
+	;  001		   IR1
+	;  010		   IR2
+	;  011		   IR3
+	;  100		   IR4
+	;  101		   IR5
+	;  110		   IR6
+	;  111		   IR7
 	mov al, 4		; write 4 to the master PIC (indicating a slave is connected to IRQ2)
-					; ??? still not clear
+					; 0x04 => 100b, second bit(starting from zero bit) to set IR line 2
 	out 0x21, al	
 	mov al, 2		; write 2 to the slave (setting its slave ID)
-					; ??? still not clear
+					; 010b => IR line 2
 	out 0xA1, al
 	
 	; ICW4 bitset:
@@ -217,6 +239,7 @@ rtc_poll:
 	cld
 	mov edi, 0x00002000		; Create a PML4 entry for the first 4GB of RAM
 	mov eax, 0x00003007		; location of low PDP
+							; ??? what is PDP?
 	stosd
 	xor eax, eax
 	stosd
@@ -316,18 +339,18 @@ start64:
 	mov gs, ax
 
 	mov rax, clearcs64		; Do a proper 64-bit jump. Should not be needed as the ...
-	jmp rax				; jmp SYS64_CODE_SEL:start64 would have sent us ...
-	nop				; out of compatibility mode and into 64-bit mode
+	jmp rax					; jmp SYS64_CODE_SEL:start64 would have sent us ...
+	nop						; out of compatibility mode and into 64-bit mode
 clearcs64:
 	xor eax, eax
 
 	lgdt [GDTR64]			; Reload the GDT
 
-; Patch Pure64 AP code			; The AP's will be told to start execution at 0x8000
+; Patch Pure64 AP code		; The AP's will be told to start execution at 0x8000
 	mov edi, start			; We need to remove the BSP Jump call to get the AP's
 	mov eax, 0x90909090		; to fall through to the AP Init code
 	stosd
-	stosd				; Write 8 bytes in total to overwrite the 'far jump' and marker
+	stosd					; Write 8 bytes in total to overwrite the 'far jump' and marker
 
 ; Process the E820 memory map to find all possible 2MiB pages that are free to use
 ; Build a map at 0x400000
