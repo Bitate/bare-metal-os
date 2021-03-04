@@ -221,9 +221,11 @@ rtc_poll:
 	mov edi, eax
 	rep stosd
 
-; Clear memory for the Page Descriptor Entries (0x10000 - 0x5FFFF)
+; Clear memory for the Page Descriptor Entries (0x10000 - 0x5FFFF) = 327680 bytes
+; stosd writes eax to edi and increments it by four (assuming the DF flag is not set, which is usually the case).
+; This snippet is equivalent to memset(0x00010000, 0, 81920*4).
 	mov edi, 0x00010000
-	mov ecx, 81920
+	mov ecx, 81920		; 81920 * 4 = 327680 bytes = 320KiB
 	rep stosd			; Write 320KiB
 
 ; Copy the GDT to its final location in memory
