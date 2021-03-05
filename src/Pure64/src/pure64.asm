@@ -216,7 +216,9 @@ rtc_poll:
 	out dx, al
 
 ; Clear out the first 20KiB of memory. This will store the 64-bit IDT, GDT, PML4, PDP Low, and PDP High
-	mov ecx, 5120
+; What is PML4?
+; 	Page Map Level 4
+	mov ecx, 5120		; 5120 * 4 = 20480 = 20 K
 	xor eax, eax
 	mov edi, eax
 	rep stosd
@@ -241,7 +243,8 @@ rtc_poll:
 	cld
 	mov edi, 0x00002000		; Create a PML4 entry for the first 4GB of RAM
 	mov eax, 0x00003007		; location of low PDP
-							; ??? what is PDP?
+							; What is PDP?	
+							;	Page Directory Pointer Table.
 	stosd
 	xor eax, eax
 	stosd
@@ -279,7 +282,7 @@ pd_low:					; Create a 2 MiB page
 	xor eax, eax
 	stosd
 	pop eax
-	add eax, 0x00200000
+	add eax, 0x00200000 ; (200000)16 = (2^21)10 = 2M
 	inc ecx
 	cmp ecx, 2048
 	jne pd_low			; Create 2048 2 MiB page maps.
@@ -308,6 +311,7 @@ pd_low:					; Create a 2 MiB page
 	mov cr0, eax
 
 	jmp SYS64_CODE_SEL:start64	; Jump to 64-bit mode
+								; Why use SYS64_CODE_SEL:start64?
 
 
 align 16
